@@ -42,7 +42,7 @@
     }
     async function getDelta() {
       var t0 = Date.now();
-      let response = await axios.get("http://192.168.1.112:3000", {
+      let response = await axios.get("../", {
         params: {
           time: Date.now()
         }
