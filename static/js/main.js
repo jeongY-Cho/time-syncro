@@ -1,7 +1,14 @@
 let delta;
-let startTick;
+let startTime;
+let startPos;
+
 let ping = document.getElementById("ping");
 let box = document.getElementById("box");
+let unsyncedBox = document.getElementById("unsyncedBox");
+let getServerTime = () => {
+  return Date.now() - delta;
+};
+
 async function getAverageDelta() {
   let span = document.getElementById("delay");
   span.innerText = "starting measurement";
@@ -10,6 +17,7 @@ async function getAverageDelta() {
   for (_ = 0; _ < 5; _++) {
     deltas.push(await getDelta());
   }
+  console.log(deltas);
 
   let avgDelta = mean(deltas);
   let sdDeltas = Math.floor(Math.sqrt(variance(deltas)));
@@ -22,36 +30,34 @@ async function getAverageDelta() {
     delta = avgDelta;
     span.innerText = `${avgDelta}, SD: ${sdDeltas}`;
     setChangeColor();
+    return avgDelta;
   }
 }
-function changeColor() {
-  if (box.style.background === "red") {
-    box.style.background = "blue";
+function changeColor(what) {
+  if (what.style.background === "red") {
+    what.style.background = "blue";
   } else {
-    box.style.background = "red";
+    what.style.background = "red";
   }
-  setTimeout(changeColor, 2000);
+  setTimeout(changeColor, 2000, what);
 }
 
 async function getDelta() {
   var t0 = Date.now();
-  let response = await axios.get("../", {
-    params: {
-      time: Date.now()
-    }
-  });
+  let response = await axios.get("../time");
   let t1 = Date.now();
   console.log(t1 - t0);
-  ping.innerHTML += `<br>Ping: ${t1 - t0}`;
-  startTick = parseInt(response.headers["x-start-at"]);
+  console.log(response);
 
-  return response.data - (t1 - t0) / 2;
+  ping.innerHTML += `<br>Ping: ${t1 - t0}`;
+
+  startTime = parseInt(response.headers["x-start-at"]);
+  startPos = parseInt(response.headers["x-start-pos"]);
+  return t1 - response.data - (t1 - t0) / 2;
 }
 function setChangeColor() {
-  let systemTime = Date.now();
-  let serverTime = Date.now() - delta;
-
-  setTimeout(changeColor, startTick - serverTime);
+  setTimeout(changeColor, startTime - getServerTime(), box);
+  setTimeout(changeColor, startTime - Date.now(), unsyncedBox);
 }
 //Check whether is a number or not
 function isNum(args) {
