@@ -28,7 +28,7 @@ async function getAverageDelta() {
   } else {
     delta = avgDelta;
     span.innerText = `${avgDelta}, SD: ${sdDeltas}`;
-    setChangeColor();
+
     return avgDelta;
   }
 }
@@ -46,7 +46,6 @@ async function getDelta() {
   let response = await axios.get("../time");
   let t1 = Date.now();
   console.log(t1 - t0);
-  console.log(response);
 
   ping.innerHTML += `<br>Ping: ${t1 - t0}`;
 
@@ -57,6 +56,20 @@ async function getDelta() {
 function setChangeColor() {
   setTimeout(changeColor, startTime - getServerTime(), box);
 }
+
+async function setNew() {
+  await axios.put("/set", {
+    data: {
+      videoId: document.getElementById("newId").value,
+      videoLength: document.getElementById("length").value
+    }
+  });
+  setTimeout(() => {
+    console.log(Date.now());
+    location.reload();
+  }, 300);
+}
+
 //Check whether is a number or not
 function isNum(args) {
   args = args.toString();

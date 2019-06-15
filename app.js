@@ -1,8 +1,9 @@
 const express = require("express");
 
 const nunjucks = require("nunjucks");
-
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 nunjucks.configure("views", {
   autoescape: true,
   express: app
@@ -18,11 +19,16 @@ var videoId = "F4oHuML9U2A";
 app.set("view engine", "njk");
 
 app.put("/set", (req, res) => {
+  console.log(Date.now());
+
   syncedVideoPos = 0;
   nextStartPost = 0;
-  videoId = req.query.videoId;
-  videoLength = Number(req.query.videoLength);
 
+  if (req.body.data.videoId && req.body.data.videoLength) {
+    videoLength = Number(req.body.data.videoLength);
+    videoId = req.body.data.videoId;
+  }
+  console.log(Date.now());
   res.sendStatus(200);
 });
 

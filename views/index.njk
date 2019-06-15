@@ -18,6 +18,12 @@
     <div>Real Time difference: <span id="delay"></span></div>
     <button onclick="getAverageDelta()">Get Delay</button>
     <br />
+      <input type="text" id="newId" placeholder="ID"></input>
+      <input type="text" id="length" placeholder="length in seconds"></input>
+       
+      <button onclick="setNew()" type="submit">Submit</button>
+      <br/>
+    <br/>
     <div id="player"></div>
     <br />
     <div style="max-height:80vh; overflow:auto">
@@ -38,7 +44,7 @@
     var player;
     async function onYouTubeIframeAPIReady() {
       await getAverageDelta();
-
+    setChangeColor();
       player = new YT.Player("player", {
         height: "390",
         width: "640",
