@@ -28,7 +28,7 @@ app.put("/set", (req, res) => {
 
 app.use(express.static("static"));
 
-app.get("/index", (req, res) => {
+app.get("/", (req, res) => {
   res.render("index", { videoId });
 });
 
