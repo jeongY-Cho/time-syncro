@@ -4,7 +4,6 @@ let startPos;
 
 let ping = document.getElementById("ping");
 let box = document.getElementById("box");
-let unsyncedBox = document.getElementById("unsyncedBox");
 let getServerTime = () => {
   return Date.now() - delta;
 };
@@ -57,7 +56,6 @@ async function getDelta() {
 }
 function setChangeColor() {
   setTimeout(changeColor, startTime - getServerTime(), box);
-  setTimeout(changeColor, startTime - Date.now(), unsyncedBox);
 }
 //Check whether is a number or not
 function isNum(args) {

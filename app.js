@@ -21,7 +21,7 @@ app.put("/set", (req, res) => {
   syncedVideoPos = 0;
   nextStartPost = 0;
   videoId = req.query.videoId;
-  videoLength = req.query.videoLength;
+  videoLength = Number(req.query.videoLength);
 
   res.sendStatus(200);
 });
