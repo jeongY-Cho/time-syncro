@@ -1,0 +1,19 @@
+<html>
+  <head>
+    <title>Video stream sample</title>
+  </head>
+  <body>
+    <video id="videoPlayer" controls muted="muted"> 
+      <source src="http://localhost:3000/proof2/video" type="video/mp4">
+    </video>
+  </body>
+  <script>
+  </script>
+  <script>
+  var vid = document.getElementById("videoPlayer")
+    vid.oncanplay = ()=>{
+      
+      vid.currentTime =20
+  }
+  </script>
+</html>

@@ -1,13 +1,20 @@
 let delta;
 let startTime;
 let startPos;
+window.starTime = startTime;
+window.startPos = startPos;
 
 let ping = document.getElementById("ping");
 let box = document.getElementById("box");
 let getServerTime = () => {
   return Date.now() - delta;
 };
+async function getStartTimeAndPos() {
+  let response = await axios.get("proof/sync");
 
+  startTime = parseInt(response.headers["x-start-at"]);
+  startPos = parseInt(response.headers["x-start-pos"]);
+}
 async function getAverageDelta() {
   let span = document.getElementById("delay");
   span.innerText = "starting measurement";
@@ -28,29 +35,28 @@ async function getAverageDelta() {
   } else {
     delta = avgDelta;
     span.innerText = `${avgDelta}, SD: ${sdDeltas}`;
-
+    await getStartTimeAndPos();
     return avgDelta;
   }
 }
 function changeColor(what) {
+  box.innerText = "synced box " + getServerTime();
   if (what.style.background === "red") {
     what.style.background = "blue";
   } else {
     what.style.background = "red";
   }
-  setTimeout(changeColor, 2000, what);
+  setTimeout(changeColor, 1000, what);
 }
 
 async function getDelta() {
   var t0 = Date.now();
-  let response = await axios.get("../time");
+  let response = await axios.get("/time");
   let t1 = Date.now();
   console.log(t1 - t0);
 
   ping.innerHTML += `<br>Ping: ${t1 - t0}`;
 
-  startTime = parseInt(response.headers["x-start-at"]);
-  startPos = parseInt(response.headers["x-start-pos"]);
   return t1 - response.data - (t1 - t0) / 2;
 }
 function setChangeColor() {
@@ -58,7 +64,7 @@ function setChangeColor() {
 }
 
 async function setNew() {
-  await axios.put("/set", {
+  await axios.put("proof/set", {
     data: {
       videoId: document.getElementById("newId").value,
       videoLength: document.getElementById("length").value
