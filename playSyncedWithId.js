@@ -2,7 +2,7 @@ const router = require("express").Router();
 const getVideoLength = require("./withIdUtils");
 
 const defaultVideoId = "F4oHuML9U2A";
-const bufferTime = 4000;
+const bufferTime = 5000;
 
 var videosInMemory = {};
 var pendingTimeouts = {};

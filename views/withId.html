@@ -1,100 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <title>Delay</title>
-  </head>
-  <body>
-    <br />
-    <span id="videoField" hidden>
-      <label for="videoId">Video to Sync</label>
-      <input type="text" id="videoId" placeholder="Link"></input>
-    </span>
-       
-      <button onclick="getVideoInfo()" type="submit">Play</button>
-      <br/>
-    <br/>
-    <div id="player"></div>
-    <br />
-    <div id="clientTime">Syncronizing clocks with server...</div>
-    <div id="serverTime"></div>
-    <div style="max-height:80vh; overflow:auto;">
-      <div id="log"></div>
-    </div>
-  </body>
-  <script src="js/withId.js"></script>
-  <script>
-    // 2. This code loads the IFrame Player API code asynchronously.
-    getServerOffSet().then(offset => {
-      document.getElementById("videoField").hidden = false
-      serverTimeOffset = offset;
-      document.getElementById("log").innerHTML += offset;
-      setTimeout(() => {
-        setInterval(() => {
-          document.getElementById("clientTime").innerHTML =
-            "Client Time: " + new Date();
 
-          document.getElementById("serverTime").innerHTML =
-            "Server Time: " + new Date(getServerTime());
-        }, 1000);
-      }, 1000 - (getServerTime() % 1000));
-      var tag = document.createElement("script");
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+  <title>Delay</title>
+</head>
 
-      tag.src = "https://www.youtube.com/iframe_api";
-      var firstScriptTag = document.getElementsByTagName("script")[0];
-      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-    });
+<body>
+  <br />
+  <span id="videoField" hidden>
+    <label for="videoId">Video to Sync</label>
+    <input type="text" id="videoId" placeholder="Link"></input>
+  </span>
 
-    // 3. This function creates an <iframe> (and YouTube player)
-    //    after the API code downloads.
-    var player;
-    var alpha = 5
-    async function onYouTubeIframeAPIReady() {
-      player = new YT.Player("player", {
-        height: "390",
-        width: "640",
-        playerVars: {
-          start: getVideoTime() + alpha,
-          controls: 1,
-        },
-        videoId: "{{videoId}}",
-        events: {
-          onReady: onPlayerReady,
-          onStateChange: onPlayerStateChange
-        }
-      });
-      window.player = player;
-    }
+  <button onclick="syncedPlayer.getVideoInfo(document.getElementById('videoId').value)" type="submit">Play</button>
+  <br />
+  <br />
+  <div id="player"></div>
+  <br />
+  <div id="clientTime">Syncronizing clocks with server...</div>
+  <div id="serverTime"></div>
+  <div id="videoTime"></div>
+  <div style="max-height:80vh; overflow:auto;">
+    <div id="log"></div>
+  </div>
+</body>
+<script src="js/withId.js"></script>
+<script>
+  // 2. This code loads the IFrame Player API code asynchronously.
+  getServerOffSet().then(offset => {
+    document.getElementById("videoField").hidden = false
+    serverTimeOffset = offset;
+    document.getElementById("log").innerHTML += offset;
+    setTimeout(() => {
+      setInterval(() => {
+        document.getElementById("clientTime").innerHTML =
+          "Client Time: " + new Date();
 
-    async function onPlayerReady(event) {
-      await getVideoInfo()
+        document.getElementById("serverTime").innerHTML =
+          "Server Time: " + new Date(getServerTime());
+      }, 1000);
+    }, 1000 - (getServerTime() % 1000));
+    // var tag = document.createElement("script");
 
-    }
+    // tag.src = "https://www.youtube.com/iframe_api";
+    // var firstScriptTag = document.getElementsByTagName("script")[0];
+    // firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  });
 
-    function onPlayerStateChange(event) {
-      console.log(event.data);
-      
-      if (event.data === -1) {
-        
+  // 3. This function creates an <iframe> (and YouTube player)
+  //    after the API code downloads.
+  // var player;
+  var alpha = 5
+  // async function onYouTubeIframeAPIReady() {
+  //   player = new YT.Player("player", {
+  //     height: "390",
+  //     width: "640",
+  //     playerVars: {
+  //       start: getVideoTime() + alpha,
+  //       controls: 1,
+  //     },
+  //     videoId: "{{videoId}}",
+  //     events: {
+  //       onReady: onPlayerReady,
+  //       onStateChange: onPlayerStateChange
+  //     }
+  //   });
+  //   window.player = player;
+  // }
+
+  async function onPlayerReady(event) {
+    await getVideoInfo()
+
+  }
+  var currentPos
+  var timeInterval
+  var first = true
+  function onPlayerStateChange(event) {
+    console.log(event.data);
+
+    if (event.data === -1) {
+      console.log("player ");
+
+      if (first) {
+        first = false
+        console.log("First");
+
         let startPos = getVideoTime() + alpha
+        currentPos = startPos
         console.log(startPos);
-        
+
         player.seekTo(startPos)
+
         setTimeout(() => {
           player.seekTo(startPos)
           player.pauseVideo()
-          
+
         }, 1000);
-        setTimeout(()=>{
+        setTimeout(() => {
           player.playVideo()
-        }, alpha *1000 + getEpsilon())
+        }, alpha * 1000 + getEpsilon())
       }
     }
-    function stopVideo() {
-      player.stopVideo();
+    if (event.data === YT.PlayerState.PLAYING) {
+      document.getElementById("videoTime").innerText = getVideoTime()
+      setInterval(() => {
+        currentPos++
+        console.log("dd", currentPos);
+        document.getElementById("videoTime").innerText = getVideoTime()
+      }, 1000)
     }
-  </script>
+    if (event.data === YT.PlayerState.PAUSED) {
+      clearInterval(timeInterval)
+    }
+  }
+  function stopVideo() {
+    player.stopVideo();
+  }
+
+  window.syncro = new Syncronizer()
+
+</script>
+
 </html>
